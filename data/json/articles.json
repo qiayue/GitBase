@@ -1,3 +1,37 @@
 [
-
+  {
+    "title": "Accessing the Admin Panel and Managing Resources in GitBase",
+    "description": "How to access the admin panel and manage your resource list in GitBase",
+    "date": "2024-08-11T13:14:40.737Z",
+    "lastModified": "2024-08-11T13:14:40Z",
+    "path": "data/md/accessing-admin-managing-resources.md"
+  },
+  {
+    "title": "Configuring Environment Variables for GitBase",
+    "description": "How to configure GitBase environment variables",
+    "date": "2024-08-11T13:08:05.474Z",
+    "lastModified": "2024-08-11T13:08:05Z",
+    "path": "data/md/environment-variables.md"
+  },
+  {
+    "title": "Installing and Deploying GitBase: A Step-by-Step Guide",
+    "description": "A comprehensive guide for setting up GitBase locally and deploying it to Vercel, suitable for beginners.",
+    "date": "2024-08-11",
+    "lastModified": "2024-08-11T11:34:30Z",
+    "path": "data/md/gitbase-install-guide.md"
+  },
+  {
+    "title": "GitBase: A Dynamic, Database-Free Website Solution",
+    "description": "Explore the features and implementation of GitBase, an innovative open-source project that combines Next.js, Tailwind CSS, and GitHub API for content management.",
+    "date": "2024-08-11",
+    "lastModified": "2024-08-11T11:34:30Z",
+    "path": "data/md/gitbase-introduction.md"
+  },
+  {
+    "title": "Managing Articles in GitBase Admin Panel",
+    "description": "This guide will walk you through the process of viewing, editing, and creating new articles using the admin panel.",
+    "date": "2024-08-11T13:16:44.231Z",
+    "lastModified": "2024-08-11T13:16:44Z",
+    "path": "data/md/managing-articles.md"
+  }
 ]

@@ -1,5 +1,12 @@
 [
   {
+    "title": "Accessing the Admin Panel and Managing Resources in GitBase",
+    "description": "How to access the admin panel and manage your resource list in GitBase",
+    "date": "2024-08-11T13:14:40.737Z",
+    "lastModified": "2024-08-11T13:14:40Z",
+    "path": "data/md/accessing-admin-managing-resources.md"
+  },
+  {
     "title": "Configuring Environment Variables for GitBase",
     "description": "How to configure GitBase environment variables",
     "date": "2024-08-11T13:08:05.474Z",

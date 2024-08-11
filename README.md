@@ -2,6 +2,13 @@
 
 [GitBase](https://gitbase.app/) is an open-source dynamic website solution without a traditional database, built with Next.js, Tailwind CSS, and Shadcn/UI. It leverages GitHub as a content management system, providing a seamless way to create and manage website content.
 
+![GitBase](https://toimg.xyz/file/5aa892c8e8385232fcdf3.png)
+
+
+## Deploy on Vercel
+[![Deploy with Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fqiayue%2Fgitbase&project-name=GitBase&repository-name=GitBase&external-id=https%3A%2F%2Fgithub.com%2Fqiayue%2Fgitbase%2Ftree%2Fmain)
+
+
 ## Features
 
 - **Database-free Architecture**: Utilizes GitHub for content storage and management.

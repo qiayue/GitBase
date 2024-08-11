@@ -1,5 +1,12 @@
 [
   {
+    "title": "Configuring Environment Variables for GitBase",
+    "description": "How to configure GitBase environment variables",
+    "date": "2024-08-11T13:08:05.474Z",
+    "lastModified": "2024-08-11T13:08:05Z",
+    "path": "data/md/environment-variables.md"
+  },
+  {
     "title": "Installing and Deploying GitBase: A Step-by-Step Guide",
     "description": "A comprehensive guide for setting up GitBase locally and deploying it to Vercel, suitable for beginners.",
     "date": "2024-08-11",

@@ -26,5 +26,12 @@
     "date": "2024-08-11",
     "lastModified": "2024-08-11T11:34:30Z",
     "path": "data/md/gitbase-introduction.md"
+  },
+  {
+    "title": "Managing Articles in GitBase Admin Panel",
+    "description": "This guide will walk you through the process of viewing, editing, and creating new articles using the admin panel.",
+    "date": "2024-08-11T13:16:44.231Z",
+    "lastModified": "2024-08-11T13:16:44Z",
+    "path": "data/md/managing-articles.md"
   }
 ]

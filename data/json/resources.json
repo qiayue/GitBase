@@ -23,5 +23,10 @@
     "name": "Github.com",
     "description": "The world's leading platform for version control and collaborative software development.",
     "url": "https://github.com/"
+  },
+  {
+    "name": "Woy.ai",
+    "description": "AI Tools Directory",
+    "url": "https://woy.ai"
   }
 ]

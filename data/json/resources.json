@@ -28,5 +28,10 @@
     "name": "Woy.ai",
     "description": "AI Tools Directory",
     "url": "https://woy.ai"
+  },
+  {
+    "name": "Music Player",
+    "description": "Online Music Player",
+    "url": "https://musicplayer-olive.vercel.app/"
   }
 ]

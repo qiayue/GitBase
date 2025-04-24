@@ -1,0 +1,10 @@
+{
+  "name": "GitBase12",
+  "title": "GitBase - Open Source Dynamic Website CMS Without Database",
+  "description": "A Next.js site with Tailwind & Shadcn/UI, using GitHub API for content management. No database needed for dynamic updates.",
+  "slogan": "Open Source Dynamic Website CMS Without Database",
+  "intro": "GitBase is a dynamic, database-free website built with Next.js, Tailwind CSS, and Shadcn/UI, featuring a content management system powered by the GitHub API for seamless updates and administration.",
+  "url": "https://gitbase.app",
+  "author": "GitBase",
+  "footerText": "GitBase. All rights reserved."
+}

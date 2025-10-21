@@ -31,6 +31,8 @@ function verifyTokenSimple(token) {
 export function middleware(request) {
   const pathname = request.nextUrl.pathname;
 
+  console.log('[Middleware] Processing:', pathname);
+
   // Handle /en redirect to / (301 permanent redirect)
   if (pathname.startsWith('/en')) {
     const newPath = pathname.replace(/^\/en/, '') || '/';
@@ -54,13 +56,19 @@ export function middleware(request) {
     pathWithoutLocale = '/' + segments.slice(2).join('/');
   }
 
+  console.log('[Middleware] Path without locale:', pathWithoutLocale);
+
   // Check authentication for /admin routes (locale-aware)
   // This prevents any admin page from rendering before authentication
   if (pathWithoutLocale.startsWith('/admin')) {
+    console.log('[Middleware] Admin route detected');
     const token = request.cookies.get('auth_token')?.value;
+    console.log('[Middleware] Token exists:', !!token);
     const isLoggedIn = token && verifyTokenSimple(token);
+    console.log('[Middleware] Is logged in:', isLoggedIn);
 
     if (!isLoggedIn) {
+      console.log('[Middleware] Redirecting to /login');
       // Always redirect to root /login (admin pages don't need locale)
       return NextResponse.redirect(new URL('/login', request.url));
     }

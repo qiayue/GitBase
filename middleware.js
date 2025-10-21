@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { verifyToken } from './src/lib/auth';
 import { i18n } from './src/lib/i18n-config';
 
+// Use Node.js runtime to support jsonwebtoken library
+export const runtime = 'nodejs';
+
 export function middleware(request) {
   const pathname = request.nextUrl.pathname;
 
@@ -29,15 +32,14 @@ export function middleware(request) {
   }
 
   // Check authentication for /admin routes (locale-aware)
+  // This prevents any admin page from rendering before authentication
   if (pathWithoutLocale.startsWith('/admin')) {
     const token = request.cookies.get('auth_token')?.value;
     const isLoggedIn = token && verifyToken(token);
 
     if (!isLoggedIn) {
-      // Preserve locale in redirect
-      const locale = pathnameHasLocale ? pathname.split('/')[1] : '';
-      const loginPath = locale ? `/${locale}/login` : '/login';
-      return NextResponse.redirect(new URL(loginPath, request.url));
+      // Always redirect to root /login (admin pages don't need locale)
+      return NextResponse.redirect(new URL('/login', request.url));
     }
   }
 
@@ -46,12 +48,17 @@ export function middleware(request) {
     '/api/articles/create',
     '/api/articles',
     '/api/resources',
+    '/api/categories',
   ];
 
   const isProtectedApi = protectedApiRoutes.some(route => {
     if (route === '/api/articles' || route === '/api/resources') {
-      // Only protect POST/PUT/DELETE methods, allow GET
-      return pathWithoutLocale === route && request.method !== 'GET';
+      // Only protect POST/PUT/DELETE/PATCH methods, allow GET
+      return pathWithoutLocale === route && !['GET', 'HEAD'].includes(request.method);
+    }
+    if (route === '/api/categories') {
+      // Only protect POST/PUT/DELETE/PATCH methods for categories
+      return pathWithoutLocale.startsWith(route) && !['GET', 'HEAD'].includes(request.method);
     }
     return pathWithoutLocale.startsWith(route);
   });

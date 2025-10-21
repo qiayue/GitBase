@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,23 +14,6 @@ export default function AdminPage() {
   const [editingIndex, setEditingIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const router = useRouter();
-
-  const checkAuth = useCallback(async () => {
-    try {
-      const response = await fetch('/api/check-auth');
-      const data = await response.json();
-      if (!data.isLoggedIn) {
-        router.push('/login');
-      } else {
-        setIsLoading(false);
-      }
-    } catch (error) {
-      console.error('Error checking auth:', error);
-      setError('Failed to authenticate. Please try again.');
-      setIsLoading(false);
-    }
-  }, [router]);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -64,10 +46,9 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    checkAuth();
     fetchResources();
     fetchCategories();
-  }, [checkAuth, fetchResources, fetchCategories]);
+  }, [fetchResources, fetchCategories]);
 
   const handleInputChange = (e, index = null) => {
     const { name, value } = e.target;

@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Github } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { i18n, getLocaleFromPath } from '@/lib/i18n-config'
 
 const navItems = [
   { path: '/', label: 'Home' },
@@ -18,6 +20,17 @@ export function Navigation() {
   const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+
+  // Extract current locale from pathname
+  const currentLocale = getLocaleFromPath(pathname) || i18n.defaultLocale
+
+  // Get localized paths for nav items
+  const getLocalizedPath = (path) => {
+    if (currentLocale === i18n.defaultLocale) {
+      return path
+    }
+    return `/${currentLocale}${path}`
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -56,25 +69,29 @@ export function Navigation() {
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex gap-6 md:gap-10">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href={getLocalizedPath('/')} className="flex items-center space-x-2">
             <span className="inline-block font-bold">GitBase</span>
           </Link>
           <nav className="hidden md:flex gap-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                className={cn(
-                  "flex items-center text-sm font-medium text-muted-foreground",
-                  item.path === pathname && "text-foreground"
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const localizedPath = getLocalizedPath(item.path)
+              return (
+                <Link
+                  key={item.path}
+                  href={localizedPath}
+                  className={cn(
+                    "flex items-center text-sm font-medium text-muted-foreground",
+                    pathname === localizedPath && "text-foreground"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              )
+            })}
           </nav>
         </div>
         <div className="flex items-center gap-4">
+          <LanguageSwitcher currentLocale={currentLocale} />
           <Link
             href="https://github.com/qiayue/gitbase"
             target="_blank"
@@ -87,13 +104,13 @@ export function Navigation() {
           {!isLoading && (
             isLoggedIn ? (
               <>
-                <Link href="/admin">
+                <Link href={getLocalizedPath('/admin')}>
                   <Button variant="ghost">Admin</Button>
                 </Link>
                 <Button onClick={handleLogout} variant="outline">Logout</Button>
               </>
             ) : (
-              <Link href="/login">
+              <Link href={getLocalizedPath('/login')}>
                 <Button>Login</Button>
               </Link>
             )

@@ -1,17 +1,43 @@
 import { NextResponse } from 'next/server';
 import { verifyToken } from './src/lib/auth';
+import { i18n } from './src/lib/i18n-config';
 
 export function middleware(request) {
-  const path = request.nextUrl.pathname;
+  const pathname = request.nextUrl.pathname;
 
-  // Check authentication for /admin routes
-  if (path.startsWith('/admin')) {
+  // Handle /en redirect to / (301 permanent redirect)
+  if (pathname.startsWith('/en')) {
+    const newPath = pathname.replace(/^\/en/, '') || '/';
+    const searchParams = request.nextUrl.searchParams.toString();
+    const redirectUrl = new URL(
+      `${newPath}${searchParams ? `?${searchParams}` : ''}`,
+      request.url
+    );
+    return NextResponse.redirect(redirectUrl, { status: 301 });
+  }
+
+  // Extract locale from pathname
+  const pathnameHasLocale = i18n.locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
+
+  // Get the path without locale
+  let pathWithoutLocale = pathname;
+  if (pathnameHasLocale) {
+    const segments = pathname.split('/');
+    pathWithoutLocale = '/' + segments.slice(2).join('/');
+  }
+
+  // Check authentication for /admin routes (locale-aware)
+  if (pathWithoutLocale.startsWith('/admin')) {
     const token = request.cookies.get('auth_token')?.value;
     const isLoggedIn = token && verifyToken(token);
 
     if (!isLoggedIn) {
-      // Redirect to login page if not authenticated
-      return NextResponse.redirect(new URL('/login', request.url));
+      // Preserve locale in redirect
+      const locale = pathnameHasLocale ? pathname.split('/')[1] : '';
+      const loginPath = locale ? `/${locale}/login` : '/login';
+      return NextResponse.redirect(new URL(loginPath, request.url));
     }
   }
 
@@ -25,9 +51,9 @@ export function middleware(request) {
   const isProtectedApi = protectedApiRoutes.some(route => {
     if (route === '/api/articles' || route === '/api/resources') {
       // Only protect POST/PUT/DELETE methods, allow GET
-      return path === route && request.method !== 'GET';
+      return pathWithoutLocale === route && request.method !== 'GET';
     }
-    return path.startsWith(route);
+    return pathWithoutLocale.startsWith(route);
   });
 
   if (isProtectedApi) {
@@ -47,8 +73,7 @@ export function middleware(request) {
 
 export const config = {
   matcher: [
-    '/admin/:path*',          // Match all admin pages
-    '/api/articles/:path*',   // Match all article API routes
-    '/api/resources/:path*',  // Match all resource API routes
+    // Match all paths except static files and api routes that don't need locale handling
+    '/((?!_next/static|_next/image|favicon.ico|.*\\..*).)*',
   ],
 };

@@ -1,0 +1,61 @@
+{
+  "navigation": {
+    "home": "首页",
+    "posts": "文章",
+    "resources": "资源",
+    "admin": "管理",
+    "login": "登录",
+    "logout": "登出"
+  },
+  "home": {
+    "title": "GitBase",
+    "subtitle": "无需数据库的开源动态网站 CMS",
+    "description": "GitBase 是一个使用 Next.js、Tailwind CSS 和 Shadcn/UI 构建的动态无数据库网站，通过 GitHub API 提供无缝的内容管理系统。",
+    "moreArticles": "更多文章",
+    "moreResources": "更多资源"
+  },
+  "articles": {
+    "title": "文章",
+    "noCategory": "无分类"
+  },
+  "resources": {
+    "title": "资源",
+    "noCategory": "无分类"
+  },
+  "admin": {
+    "dashboard": "管理后台",
+    "manageArticles": "管理文章",
+    "resourceManagement": "资源管理",
+    "name": "名称",
+    "description": "描述",
+    "url": "链接",
+    "category": "分类",
+    "actions": "操作",
+    "edit": "编辑",
+    "save": "保存",
+    "addNew": "新增",
+    "createArticle": "创建新文章",
+    "editArticle": "编辑文章",
+    "articleTitle": "文章标题",
+    "articleDescription": "文章描述",
+    "articleSlug": "文章别名",
+    "articleContent": "文章内容（Markdown）",
+    "categoryOptional": "分类（可选）",
+    "creating": "创建中...",
+    "create": "创建文章",
+    "loading": "加载中...",
+    "savingArticle": "保存中..."
+  },
+  "login": {
+    "title": "管理员登录",
+    "username": "用户名",
+    "password": "密码",
+    "enterUsername": "输入用户名",
+    "enterPassword": "输入密码",
+    "signIn": "登录",
+    "signingIn": "登录中..."
+  },
+  "language": {
+    "select": "选择语言"
+  }
+}

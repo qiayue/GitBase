@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   Card,
   CardHeader,
@@ -10,9 +11,12 @@ import {
   CardDescription,
 } from "@/components/ui/card"
 import CategoryBadge from './CategoryBadge'
+import { getLocaleFromPath, addLocaleToPath } from '@/lib/i18n-config'
 
 export default function ArticleList({ articles, showMoreLink = true }) {
   const [categories, setCategories] = useState([])
+  const pathname = usePathname()
+  const currentLocale = getLocaleFromPath(pathname)
 
   useEffect(() => {
     // Fetch categories
@@ -22,12 +26,16 @@ export default function ArticleList({ articles, showMoreLink = true }) {
       .catch(err => console.error('Error fetching categories:', err))
   }, [])
 
+  const getLocalizedPath = (path) => {
+    return addLocaleToPath(path, currentLocale)
+  }
+
   return (
     <section>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold tracking-tighter">Articles</h2>
         {showMoreLink && (
-          <Link href="/posts" className="text-blue-600 hover:text-blue-800 transition-colors">
+          <Link href={getLocalizedPath('/posts')} className="text-blue-600 hover:text-blue-800 transition-colors">
             More articles →
           </Link>
         )}
@@ -40,7 +48,7 @@ export default function ArticleList({ articles, showMoreLink = true }) {
                 {category && <CategoryBadge category={category} categories={categories} />}
               </div>
               <Link
-                href={`/posts/${id}`}
+                href={getLocalizedPath(`/posts/${id}`)}
                 className="text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1"
               >
                 <CardTitle>{title}</CardTitle>

@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { ExternalLink } from 'lucide-react'
 import {
   Card,
@@ -11,9 +12,12 @@ import {
   CardDescription,
 } from "@/components/ui/card"
 import CategoryBadge from './CategoryBadge'
+import { getLocaleFromPath, addLocaleToPath } from '@/lib/i18n-config'
 
 export default function ResourceList({ resources, showMoreLink = true }) {
   const [categories, setCategories] = useState([])
+  const pathname = usePathname()
+  const currentLocale = getLocaleFromPath(pathname)
 
   useEffect(() => {
     // Fetch categories
@@ -23,12 +27,16 @@ export default function ResourceList({ resources, showMoreLink = true }) {
       .catch(err => console.error('Error fetching categories:', err))
   }, [])
 
+  const getLocalizedPath = (path) => {
+    return addLocaleToPath(path, currentLocale)
+  }
+
   return (
     <section>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold tracking-tighter">Resources</h2>
         {showMoreLink && (
-          <Link href="/resources" className="text-blue-600 hover:text-blue-800 transition-colors">
+          <Link href={getLocalizedPath('/resources')} className="text-blue-600 hover:text-blue-800 transition-colors">
             More resources →
           </Link>
         )}

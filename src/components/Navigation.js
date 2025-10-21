@@ -107,13 +107,13 @@ export function Navigation() {
           {!isLoading && (
             isLoggedIn ? (
               <>
-                <Link href={getLocalizedPath('/admin')}>
+                <Link href="/admin">
                   <Button variant="ghost">Admin</Button>
                 </Link>
                 <Button onClick={handleLogout} variant="outline">Logout</Button>
               </>
             ) : (
-              <Link href={getLocalizedPath('/login')}>
+              <Link href="/login">
                 <Button>Login</Button>
               </Link>
             )

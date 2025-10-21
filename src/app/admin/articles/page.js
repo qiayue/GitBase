@@ -13,19 +13,6 @@ export default function AdminArticlesPage() {
   const [error, setError] = useState(null);
   const router = useRouter();
 
-  const checkAuth = useCallback(async () => {
-    try {
-      const response = await fetch('/api/check-auth');
-      const data = await response.json();
-      if (!data.isLoggedIn) {
-        router.push('/login');
-      }
-    } catch (error) {
-      console.error('Error checking auth:', error);
-      router.push('/login');
-    }
-  }, [router]);
-
   const fetchArticles = useCallback(async (sync = false) => {
     setIsLoading(true);
     setError(null);
@@ -45,9 +32,8 @@ export default function AdminArticlesPage() {
   }, []);
 
   useEffect(() => {
-    checkAuth();
     fetchArticles();
-  }, [checkAuth, fetchArticles]);
+  }, [fetchArticles]);
 
   const handleSync = useCallback(() => {
     fetchArticles(true);

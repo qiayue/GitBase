@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -14,7 +13,6 @@ import { getProjectContext, simplifyContext } from '@/lib/codeContext';
 import { batchCommitFiles, validateFilePath } from '@/lib/githubCommit';
 
 export default function AIDevPage() {
-  const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
   const [featureRequest, setFeatureRequest] = useState('');
@@ -34,32 +32,13 @@ export default function AIDevPage() {
     githubBranch: 'main'
   });
 
-  const router = useRouter();
-
-  const checkAuth = useCallback(async () => {
-    try {
-      const response = await fetch('/api/check-auth');
-      const data = await response.json();
-      if (!data.isLoggedIn) {
-        router.push('/login');
-      } else {
-        setIsLoading(false);
-      }
-    } catch (error) {
-      console.error('Error checking auth:', error);
-      setError('身份验证失败，请重新登录');
-      setIsLoading(false);
-    }
-  }, [router]);
-
   useEffect(() => {
-    checkAuth();
     // Load config from localStorage
     const savedConfig = localStorage.getItem('ai-dev-config');
     if (savedConfig) {
       setConfig(JSON.parse(savedConfig));
     }
-  }, [checkAuth]);
+  }, []);
 
   const saveConfig = () => {
     localStorage.setItem('ai-dev-config', JSON.stringify(config));
@@ -180,14 +159,6 @@ export default function AIDevPage() {
       setIsCommitting(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-4 flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto p-4 max-w-6xl">

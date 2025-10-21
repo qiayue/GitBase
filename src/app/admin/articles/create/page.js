@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,33 +11,16 @@ export default function CreateArticlePage() {
   const [article, setArticle] = useState({ title: '', description: '', content: '', slug: '', category: '' });
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
 
-  const checkAuth = useCallback(async () => {
-    try {
-      const response = await fetch('/api/check-auth');
-      const data = await response.json();
-      if (!data.isLoggedIn) {
-        router.push('/login');
-      } else {
-        setIsLoading(false);
-      }
-    } catch (error) {
-      console.error('Error checking auth:', error);
-      router.push('/login');
-    }
-  }, [router]);
-
   useEffect(() => {
-    checkAuth();
     // Fetch article categories
     fetch('/api/categories?type=article')
       .then(res => res.json())
       .then(data => setCategories(data))
       .catch(err => console.error('Error fetching categories:', err));
-  }, [checkAuth]);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -68,10 +51,6 @@ export default function CreateArticlePage() {
       setIsSaving(false);
     }
   };
-
-  if (isLoading) {
-    return <div className="container mx-auto p-4">Loading...</div>;
-  }
 
   return (
     <div className="container mx-auto p-4">

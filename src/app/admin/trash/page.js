@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -13,20 +12,6 @@ export default function TrashPage() {
   const [resources, setResources] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const router = useRouter();
-
-  const checkAuth = useCallback(async () => {
-    try {
-      const response = await fetch('/api/check-auth');
-      const data = await response.json();
-      if (!data.isLoggedIn) {
-        router.push('/login');
-      }
-    } catch (error) {
-      console.error('Error checking auth:', error);
-      router.push('/login');
-    }
-  }, [router]);
 
   const fetchDeletedItems = useCallback(async () => {
     setIsLoading(true);
@@ -54,9 +39,8 @@ export default function TrashPage() {
   }, []);
 
   useEffect(() => {
-    checkAuth();
     fetchDeletedItems();
-  }, [checkAuth, fetchDeletedItems]);
+  }, [fetchDeletedItems]);
 
   const handleRestoreArticle = useCallback(async (articlePath) => {
     if (!confirm('确定要恢复此文章吗？')) {

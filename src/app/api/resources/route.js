@@ -35,18 +35,26 @@ function getLocalResources() {
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const source = searchParams.get('source');
+  const category = searchParams.get('category');
 
-  if (source === 'github') {
-    try {
-      const resources = await getResourcesFromGitHub();
-      return NextResponse.json(resources);
-    } catch (error) {
-      return NextResponse.json({ error: 'Failed to fetch resources from GitHub' }, { status: 500 });
+  try {
+    let resources;
+
+    if (source === 'github') {
+      resources = await getResourcesFromGitHub();
+    } else {
+      // Default to local file for homepage
+      resources = getLocalResources();
     }
-  } else {
-    // Default to local file for homepage
-    const resources = getLocalResources();
+
+    // Filter by category if specified
+    if (category) {
+      resources = resources.filter(resource => resource.category === category);
+    }
+
     return NextResponse.json(resources);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch resources' }, { status: 500 });
   }
 }
 

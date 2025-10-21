@@ -1,0 +1,50 @@
+[
+  {
+    "id": "tutorial",
+    "name": "Tutorial",
+    "type": "article",
+    "color": "blue"
+  },
+  {
+    "id": "guide",
+    "name": "Guide",
+    "type": "article",
+    "color": "green"
+  },
+  {
+    "id": "documentation",
+    "name": "Documentation",
+    "type": "article",
+    "color": "purple"
+  },
+  {
+    "id": "news",
+    "name": "News",
+    "type": "article",
+    "color": "red"
+  },
+  {
+    "id": "framework",
+    "name": "Framework",
+    "type": "resource",
+    "color": "blue"
+  },
+  {
+    "id": "tool",
+    "name": "Tool",
+    "type": "resource",
+    "color": "green"
+  },
+  {
+    "id": "service",
+    "name": "Service",
+    "type": "resource",
+    "color": "purple"
+  },
+  {
+    "id": "library",
+    "name": "Library",
+    "type": "resource",
+    "color": "orange"
+  }
+]

@@ -9,7 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 export default function AdminPage() {
   const [resources, setResources] = useState([]);
-  const [newResource, setNewResource] = useState({ name: '', description: '', url: '' });
+  const [categories, setCategories] = useState([]);
+  const [newResource, setNewResource] = useState({ name: '', description: '', url: '', category: '' });
   const [editingIndex, setEditingIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,7 +35,20 @@ export default function AdminPage() {
   useEffect(() => {
     checkAuth();
     fetchResources();
+    fetchCategories();
   }, [checkAuth]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories?type=resource');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const fetchResources = async () => {
     setIsLoading(true);
@@ -73,7 +87,7 @@ export default function AdminPage() {
     let updatedResources = [...resources];
     if (index === -1) {
       updatedResources.push(newResource);
-      setNewResource({ name: '', description: '', url: '' });
+      setNewResource({ name: '', description: '', url: '', category: '' });
     }
     try {
       const response = await fetch('/api/resources', {
@@ -115,6 +129,7 @@ export default function AdminPage() {
             <TableHead>Name</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>URL</TableHead>
+            <TableHead>Category</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -144,6 +159,23 @@ export default function AdminPage() {
               </TableCell>
               <TableCell>
                 {editingIndex === index ? (
+                  <select
+                    name="category"
+                    value={resource.category || ''}
+                    onChange={(e) => handleInputChange(e, index)}
+                    className="w-full border rounded px-2 py-1"
+                  >
+                    <option value="">No Category</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                ) : (
+                  categories.find(c => c.id === resource.category)?.name || '-'
+                )}
+              </TableCell>
+              <TableCell>
+                {editingIndex === index ? (
                   <Button onClick={() => handleSave(index)}>Save</Button>
                 ) : (
                   <Button onClick={() => handleEdit(index)}>Edit</Button>
@@ -160,6 +192,19 @@ export default function AdminPage() {
             </TableCell>
             <TableCell>
               <Input name="url" value={newResource.url} onChange={handleInputChange} placeholder="New resource URL" />
+            </TableCell>
+            <TableCell>
+              <select
+                name="category"
+                value={newResource.category}
+                onChange={handleInputChange}
+                className="w-full border rounded px-2 py-1"
+              >
+                <option value="">No Category</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
             </TableCell>
             <TableCell>
               <Button onClick={() => handleSave(-1)}>Add New</Button>

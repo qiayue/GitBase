@@ -1,4 +1,7 @@
 // components/ResourceList.js
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ExternalLink } from 'lucide-react'
 import {
@@ -7,8 +10,19 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card"
+import CategoryBadge from './CategoryBadge'
 
 export default function ResourceList({ resources, showMoreLink = true }) {
+  const [categories, setCategories] = useState([])
+
+  useEffect(() => {
+    // Fetch categories
+    fetch('/api/categories?type=resource')
+      .then(res => res.json())
+      .then(data => setCategories(data))
+      .catch(err => console.error('Error fetching categories:', err))
+  }, [])
+
   return (
     <section>
       <div className="flex justify-between items-center mb-6">
@@ -23,9 +37,12 @@ export default function ResourceList({ resources, showMoreLink = true }) {
         {resources.map((resource, index) => (
           <Card key={index}>
             <CardHeader>
-              <a 
-                href={resource.url} 
-                target="_blank" 
+              <div className="flex items-center gap-2 mb-2">
+                {resource.category && <CategoryBadge category={resource.category} categories={categories} />}
+              </div>
+              <a
+                href={resource.url}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1"
               >

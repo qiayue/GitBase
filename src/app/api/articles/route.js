@@ -15,6 +15,7 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const sync = searchParams.get('sync');
   const path = searchParams.get('path');
+  const category = searchParams.get('category');
 
   try {
     if (path) {
@@ -49,7 +50,12 @@ export async function GET(request) {
     });
 
     const content = Buffer.from(data.content, 'base64').toString('utf8');
-    const articles = JSON.parse(content);
+    let articles = JSON.parse(content);
+
+    // Filter by category if specified
+    if (category) {
+      articles = articles.filter(article => article.category === category);
+    }
 
     return NextResponse.json(articles);
   } catch (error) {
@@ -116,6 +122,7 @@ async function syncArticles() {
         title: frontMatter.title,
         description: frontMatter.description,
         date: frontMatter.date,
+        category: frontMatter.category || null,
         lastModified: lastModified,
         path: file.path,
       };
@@ -158,6 +165,7 @@ async function updateMdFile(article) {
       ...frontMatter,
       title: article.title,
       description: article.description,
+      category: article.category !== undefined ? article.category : frontMatter.category,
       lastModified: new Date().toISOString(),
     };
 

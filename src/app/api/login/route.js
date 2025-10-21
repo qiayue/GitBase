@@ -2,12 +2,23 @@ import { NextResponse } from 'next/server';
 import { createToken } from '@/lib/auth';
 
 export async function POST(request) {
-  const { password } = await request.json();
-  
-  if (password === process.env.ACCESS_PASSWORD) {
-    const token = createToken();
-    
-    const response = NextResponse.json({ message: 'Login successful' }, { status: 200 });
+  const { username, password } = await request.json();
+
+  // Verify both username and password
+  const validUsername = process.env.ACCESS_USERNAME;
+  const validPassword = process.env.ACCESS_PASSWORD;
+
+  if (!username || !password) {
+    return NextResponse.json({ message: 'Username and password are required' }, { status: 400 });
+  }
+
+  if (username === validUsername && password === validPassword) {
+    const token = createToken(username);
+
+    const response = NextResponse.json({
+      message: 'Login successful',
+      username: username
+    }, { status: 200 });
 
     response.cookies.set({
       name: 'auth_token',
@@ -21,6 +32,6 @@ export async function POST(request) {
 
     return response;
   } else {
-    return NextResponse.json({ message: 'Invalid password' }, { status: 401 });
+    return NextResponse.json({ message: 'Invalid username or password' }, { status: 401 });
   }
 }

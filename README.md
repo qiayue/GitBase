@@ -46,6 +46,9 @@
    GITHUB_TOKEN=your_github_personal_access_token
    GITHUB_OWNER=your_github_username
    GITHUB_REPO=your_repo_name
+   JWT_SECRET=your_jwt_secret_key
+   DOMAIN=localhost
+   ACCESS_USERNAME=your_admin_username
    ACCESS_PASSWORD=your_secure_access_password
    ```
 
@@ -66,20 +69,24 @@ Visit `http://localhost:3000` to see your GitBase instance running locally.
 1. Push your code to GitHub.
 2. Log in to Vercel and create a new project from your GitHub repository.
 3. Configure the environment variables in Vercel:
-   - `GITHUB_TOKEN`
-   - `GITHUB_OWNER`
-   - `GITHUB_REPO`
-   - `ACCESS_PASSWORD`
+   - `GITHUB_TOKEN` - Your GitHub personal access token
+   - `GITHUB_OWNER` - Your GitHub username
+   - `GITHUB_REPO` - Your repository name
+   - `JWT_SECRET` - A secure random string (at least 32 characters)
+   - `DOMAIN` - Your production domain (e.g., yourdomain.com)
+   - `ACCESS_USERNAME` - Admin username for login
+   - `ACCESS_PASSWORD` - Admin password for login
 4. Deploy the project.
 
 For a detailed deployment guide, please refer to our [Installation and Deployment Guide](https://gitbase.app/posts/gitbase-install-guide).
 
 ## Usage
 
-- Access the admin panel by navigating to `/admin` and using your `ACCESS_PASSWORD`.
-- Create and edit articles through the admin interface.
+- Access the admin panel by navigating to `/login` and entering your `ACCESS_USERNAME` and `ACCESS_PASSWORD`.
+- Create and edit articles through the admin interface at `/admin`.
 - Manage resources in the admin panel.
 - All changes are automatically synced with your GitHub repository.
+- Admin session expires after 1 hour for security.
 
 ## Contributing
 

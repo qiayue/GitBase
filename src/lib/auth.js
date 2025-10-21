@@ -20,10 +20,11 @@ export function verifyToken(token) {
   }
 }
 
-export function createToken() {
+export function createToken(username) {
   return jwt.sign(
     {
       authenticated: true,
+      username: username,
       domain: DOMAIN
     },
     JWT_SECRET,

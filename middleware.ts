@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { i18n } from './src/lib/i18n-config';
 
 // Base64 decode function that works in Edge Runtime
-function base64UrlDecode(str) {
+function base64UrlDecode(str: string): string | null {
   // Replace URL-safe characters
   str = str.replace(/-/g, '+').replace(/_/g, '/');
 
@@ -22,14 +22,14 @@ function base64UrlDecode(str) {
       throw new Error('No base64 decoder available');
     }
     return decoded;
-  } catch (e) {
-    console.error('[Auth] Base64 decode error:', e);
+  } catch (e: any) {
+    console.error('[Auth] Base64 decode error:', e?.message || 'Unknown error');
     return null;
   }
 }
 
 // Simple token verification for Edge Runtime
-function verifyTokenSimple(token) {
+function verifyTokenSimple(token: string): boolean {
   if (!token) {
     console.log('[Auth] No token provided');
     return false;
@@ -63,13 +63,13 @@ function verifyTokenSimple(token) {
     const isAuth = payload.authenticated === true;
     console.log('[Auth] Is authenticated:', isAuth);
     return isAuth;
-  } catch (error) {
-    console.log('[Auth] Token verification error:', error.message);
+  } catch (error: any) {
+    console.log('[Auth] Token verification error:', error?.message || 'Unknown error');
     return false;
   }
 }
 
-export function middleware(request) {
+export function middleware(request: NextRequest) {
   console.log('========================================');
   console.log('[Middleware] EXECUTING - This proves middleware is running!');
 

@@ -51,6 +51,12 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
+  // Double-check authentication (belt and suspenders approach)
+  const { verifyRequestAuth } = await import('@/lib/auth');
+  if (!verifyRequestAuth(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const updatedResources = await req.json();
 
   try {

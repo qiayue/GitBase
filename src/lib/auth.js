@@ -22,11 +22,20 @@ export function verifyToken(token) {
 
 export function createToken() {
   return jwt.sign(
-    { 
+    {
       authenticated: true,
       domain: DOMAIN
     },
     JWT_SECRET,
     { expiresIn: '1h' }
   );
+}
+
+/**
+ * Verify authentication from request cookies
+ * Use this in API routes for double-layer security
+ */
+export function verifyRequestAuth(request) {
+  const token = request.cookies.get('auth_token')?.value;
+  return token ? verifyToken(token) : false;
 }

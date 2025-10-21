@@ -12,6 +12,12 @@ const articlesJsonPath = 'data/json/articles.json';
 const mdFolderPath = 'data/md';
 
 export async function POST(request) {
+  // Double-check authentication (belt and suspenders approach)
+  const { verifyRequestAuth } = await import('@/lib/auth');
+  if (!verifyRequestAuth(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { title, description, content, slug } = await request.json();
 
   // Validate slug

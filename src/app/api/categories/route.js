@@ -52,8 +52,19 @@ export async function GET(req) {
     }
 
     // Filter by type if specified
+    // Supports both old 'type' field and new 'types' array
     if (type) {
-      categories = categories.filter(cat => cat.type === type);
+      categories = categories.filter(cat => {
+        // Support new types array format (allows shared categories)
+        if (cat.types && Array.isArray(cat.types)) {
+          return cat.types.includes(type);
+        }
+        // Backward compatibility with old type field
+        if (cat.type) {
+          return cat.type === type;
+        }
+        return false;
+      });
     }
 
     return NextResponse.json(categories);

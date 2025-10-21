@@ -2,49 +2,57 @@
   {
     "id": "tutorial",
     "name": "Tutorial",
-    "type": "article",
-    "color": "blue"
+    "types": ["article", "resource"],
+    "color": "blue",
+    "description": "Step-by-step learning materials"
   },
   {
     "id": "guide",
     "name": "Guide",
-    "type": "article",
-    "color": "green"
+    "types": ["article", "resource"],
+    "color": "green",
+    "description": "How-to guides and best practices"
   },
   {
     "id": "documentation",
     "name": "Documentation",
-    "type": "article",
-    "color": "purple"
+    "types": ["article"],
+    "color": "purple",
+    "description": "Technical documentation"
   },
   {
     "id": "news",
     "name": "News",
-    "type": "article",
-    "color": "red"
+    "types": ["article"],
+    "color": "red",
+    "description": "Latest updates and announcements"
   },
   {
     "id": "framework",
     "name": "Framework",
-    "type": "resource",
-    "color": "blue"
+    "types": ["resource"],
+    "color": "blue",
+    "description": "Development frameworks"
   },
   {
     "id": "tool",
     "name": "Tool",
-    "type": "resource",
-    "color": "green"
+    "types": ["resource"],
+    "color": "green",
+    "description": "Development tools"
   },
   {
     "id": "service",
     "name": "Service",
-    "type": "resource",
-    "color": "purple"
+    "types": ["resource"],
+    "color": "purple",
+    "description": "Online services"
   },
   {
     "id": "library",
     "name": "Library",
-    "type": "resource",
-    "color": "orange"
+    "types": ["resource"],
+    "color": "orange",
+    "description": "Code libraries"
   }
 ]

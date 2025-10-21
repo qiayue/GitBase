@@ -1,29 +1,62 @@
 import { NextResponse } from 'next/server';
 import { i18n } from './src/lib/i18n-config';
 
+// Base64 decode function that works in Edge Runtime
+function base64UrlDecode(str) {
+  // Replace URL-safe characters
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+
+  // Add padding if needed
+  while (str.length % 4) {
+    str += '=';
+  }
+
+  try {
+    // Use atob which is available in Edge Runtime
+    const decoded = atob(str);
+    return decoded;
+  } catch (e) {
+    return null;
+  }
+}
+
 // Simple token verification for Edge Runtime
-// Note: This is a basic check. For production, consider using jose library.
 function verifyTokenSimple(token) {
-  if (!token) return false;
+  if (!token) {
+    console.log('[Auth] No token provided');
+    return false;
+  }
 
   try {
     // Basic JWT structure check
     const parts = token.split('.');
-    if (parts.length !== 3) return false;
+    if (parts.length !== 3) {
+      console.log('[Auth] Invalid token structure');
+      return false;
+    }
 
-    // Decode payload (without verification for Edge Runtime compatibility)
-    const payload = JSON.parse(
-      Buffer.from(parts[1], 'base64').toString('utf8')
-    );
+    // Decode payload using Edge Runtime compatible method
+    const payloadJson = base64UrlDecode(parts[1]);
+    if (!payloadJson) {
+      console.log('[Auth] Failed to decode token');
+      return false;
+    }
+
+    const payload = JSON.parse(payloadJson);
+    console.log('[Auth] Token payload:', { authenticated: payload.authenticated, exp: payload.exp });
 
     // Check expiration
     if (payload.exp && payload.exp * 1000 < Date.now()) {
+      console.log('[Auth] Token expired');
       return false;
     }
 
     // Check if authenticated
-    return payload.authenticated === true;
+    const isAuth = payload.authenticated === true;
+    console.log('[Auth] Is authenticated:', isAuth);
+    return isAuth;
   } catch (error) {
+    console.log('[Auth] Token verification error:', error.message);
     return false;
   }
 }

@@ -33,13 +33,7 @@ export default function AdminPage() {
     }
   }, [router]);
 
-  useEffect(() => {
-    checkAuth();
-    fetchResources();
-    fetchCategories();
-  }, [checkAuth]);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await fetch('/api/categories?type=resource');
       if (response.ok) {
@@ -49,9 +43,9 @@ export default function AdminPage() {
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
-  };
+  }, []);
 
-  const fetchResources = async () => {
+  const fetchResources = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -67,7 +61,13 @@ export default function AdminPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+    fetchResources();
+    fetchCategories();
+  }, [checkAuth, fetchResources, fetchCategories]);
 
   const handleInputChange = (e, index = null) => {
     const { name, value } = e.target;

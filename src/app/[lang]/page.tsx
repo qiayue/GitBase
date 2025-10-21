@@ -27,7 +27,7 @@ export default async function Home({ params }: { params: { lang: Locale } }) {
   const resourcesPath = path.join(process.cwd(), 'data', 'json', 'resources.json')
   const allResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'))
   // Filter out deleted resources
-  const resources = allResources.filter(resource => !resource.deleted)
+  const resources = allResources.filter((resource: any) => !resource.deleted)
   const allPostsData = getSortedPostsData().slice(0, 6)
 
   return (

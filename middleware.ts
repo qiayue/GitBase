@@ -1,80 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { verifyToken } from './src/lib/auth';
 import { i18n } from './src/lib/i18n-config';
 
-// Base64 decode function that works in Edge Runtime
-function base64UrlDecode(str: string): string | null {
-  // Replace URL-safe characters
-  str = str.replace(/-/g, '+').replace(/_/g, '/');
-
-  // Add padding if needed
-  while (str.length % 4) {
-    str += '=';
-  }
-
-  try {
-    // Decode base64
-    let decoded = '';
-    if (typeof atob !== 'undefined') {
-      decoded = atob(str);
-    } else if (typeof Buffer !== 'undefined') {
-      decoded = Buffer.from(str, 'base64').toString('utf8');
-    } else {
-      throw new Error('No base64 decoder available');
-    }
-    return decoded;
-  } catch (e: any) {
-    console.error('[Auth] Base64 decode error:', e?.message || 'Unknown error');
-    return null;
-  }
-}
-
-// Simple token verification for Edge Runtime
-function verifyTokenSimple(token: string): boolean {
-  if (!token) {
-    console.log('[Auth] No token provided');
-    return false;
-  }
-
-  try {
-    // Basic JWT structure check
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      console.log('[Auth] Invalid token structure');
-      return false;
-    }
-
-    // Decode payload using Edge Runtime compatible method
-    const payloadJson = base64UrlDecode(parts[1]);
-    if (!payloadJson) {
-      console.log('[Auth] Failed to decode token');
-      return false;
-    }
-
-    const payload = JSON.parse(payloadJson);
-    console.log('[Auth] Token payload:', { authenticated: payload.authenticated, exp: payload.exp });
-
-    // Check expiration
-    if (payload.exp && payload.exp * 1000 < Date.now()) {
-      console.log('[Auth] Token expired');
-      return false;
-    }
-
-    // Check if authenticated
-    const isAuth = payload.authenticated === true;
-    console.log('[Auth] Is authenticated:', isAuth);
-    return isAuth;
-  } catch (error: any) {
-    console.log('[Auth] Token verification error:', error?.message || 'Unknown error');
-    return false;
-  }
-}
-
 export function middleware(request: NextRequest) {
-  console.log('========================================');
-  console.log('[Middleware] EXECUTING - This proves middleware is running!');
-
   const pathname = request.nextUrl.pathname;
-  console.log('[Middleware] Processing pathname:', pathname);
+
+  console.log('[Middleware] Processing:', pathname);
 
   // Handle /en redirect to / (301 permanent redirect)
   if (pathname.startsWith('/en')) {
@@ -99,22 +30,20 @@ export function middleware(request: NextRequest) {
     pathWithoutLocale = '/' + segments.slice(2).join('/');
   }
 
-  console.log('[Middleware] Path without locale:', pathWithoutLocale);
-
-  // Check authentication for /admin routes (locale-aware)
-  // This prevents any admin page from rendering before authentication
+  // Check authentication for /admin routes
   if (pathWithoutLocale.startsWith('/admin')) {
-    console.log('[Middleware] Admin route detected');
+    console.log('[Middleware] Admin route detected:', pathWithoutLocale);
     const token = request.cookies.get('auth_token')?.value;
     console.log('[Middleware] Token exists:', !!token);
-    const isLoggedIn = token && verifyTokenSimple(token);
+
+    const isLoggedIn = token ? verifyToken(token) : false;
     console.log('[Middleware] Is logged in:', isLoggedIn);
 
     if (!isLoggedIn) {
       console.log('[Middleware] Redirecting to /login');
-      // Always redirect to root /login (admin pages don't need locale)
       return NextResponse.redirect(new URL('/login', request.url));
     }
+    console.log('[Middleware] Access granted to admin');
   }
 
   // Check authentication for protected API routes
@@ -139,7 +68,7 @@ export function middleware(request: NextRequest) {
 
   if (isProtectedApi) {
     const token = request.cookies.get('auth_token')?.value;
-    const isLoggedIn = token && verifyTokenSimple(token);
+    const isLoggedIn = token ? verifyToken(token) : false;
 
     if (!isLoggedIn) {
       return NextResponse.json(
@@ -154,7 +83,10 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Match all paths except static files and api routes that don't need locale handling
-    '/((?!_next/static|_next/image|favicon.ico|.*\\..*).)*',
+    '/admin/:path*',          // Match all admin pages
+    '/api/articles/:path*',   // Match all article API routes
+    '/api/resources/:path*',  // Match all resource API routes
+    '/api/categories/:path*', // Match all category API routes
+    '/en/:path*',             // Match /en routes for redirect
   ],
 };

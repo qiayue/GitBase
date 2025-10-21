@@ -7,6 +7,16 @@ import html from 'remark-html'
 const postsDirectory = path.join(process.cwd(), 'data', 'md')
 
 export function getSortedPostsData() {
+  // Read articles.json to check for deleted items
+  const articlesJsonPath = path.join(process.cwd(), 'data', 'json', 'articles.json')
+  let articlesIndex = []
+  try {
+    const articlesJson = fs.readFileSync(articlesJsonPath, 'utf8')
+    articlesIndex = JSON.parse(articlesJson)
+  } catch (error) {
+    console.error('Error reading articles.json:', error)
+  }
+
   // Get file names under /data/md
   const fileNames = fs.readdirSync(postsDirectory)
   const allPostsData = fileNames.map((fileName) => {
@@ -20,22 +30,32 @@ export function getSortedPostsData() {
     // Use gray-matter to parse the post metadata section
     const matterResult = matter(fileContents)
 
+    // Check if this article is deleted
+    const articlePath = `data/md/${fileName}`
+    const articleInIndex = articlesIndex.find(a => a.path === articlePath)
+    const isDeleted = articleInIndex?.deleted === true
+
     // Combine the data with the id
     return {
       id,
       title: matterResult.data.title,
       description: matterResult.data.description,
       date: matterResult.data.date,
+      category: matterResult.data.category,
+      deleted: isDeleted,
     }
   })
-  // Sort posts by date
-  return allPostsData.sort((a, b) => {
-    if (a.date < b.date) {
-      return 1
-    } else {
-      return -1
-    }
-  })
+
+  // Filter out deleted posts and sort by date
+  return allPostsData
+    .filter(post => !post.deleted)
+    .sort((a, b) => {
+      if (a.date < b.date) {
+        return 1
+      } else {
+        return -1
+      }
+    })
 }
 
 export async function getPostData(slug) {

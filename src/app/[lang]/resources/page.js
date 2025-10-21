@@ -20,7 +20,9 @@ export async function generateMetadata({ params }) {
 export default async function Resources({ params }) {
   const dict = await getDictionary(params.lang)
   const resourcesPath = path.join(process.cwd(), 'data', 'json', 'resources.json')
-  const resources = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'))
+  const allResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'))
+  // Filter out deleted resources
+  const resources = allResources.filter(resource => !resource.deleted)
 
   return (
     <div className="container mx-auto py-12">

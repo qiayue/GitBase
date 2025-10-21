@@ -13,7 +13,9 @@ export const metadata: Metadata = {
 
 export default function Home() {
   const resourcesPath = path.join(process.cwd(), 'data', 'json', 'resources.json')
-  const resources = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'))
+  const allResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'))
+  // Filter out deleted resources
+  const resources = allResources.filter(resource => !resource.deleted)
   const allPostsData = getSortedPostsData().slice(0, 6)
 
   return (

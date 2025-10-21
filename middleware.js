@@ -12,10 +12,18 @@ function base64UrlDecode(str) {
   }
 
   try {
-    // Use atob which is available in Edge Runtime
-    const decoded = atob(str);
+    // Decode base64
+    let decoded = '';
+    if (typeof atob !== 'undefined') {
+      decoded = atob(str);
+    } else if (typeof Buffer !== 'undefined') {
+      decoded = Buffer.from(str, 'base64').toString('utf8');
+    } else {
+      throw new Error('No base64 decoder available');
+    }
     return decoded;
   } catch (e) {
+    console.error('[Auth] Base64 decode error:', e);
     return null;
   }
 }
@@ -62,9 +70,11 @@ function verifyTokenSimple(token) {
 }
 
 export function middleware(request) {
-  const pathname = request.nextUrl.pathname;
+  console.log('========================================');
+  console.log('[Middleware] EXECUTING - This proves middleware is running!');
 
-  console.log('[Middleware] Processing:', pathname);
+  const pathname = request.nextUrl.pathname;
+  console.log('[Middleware] Processing pathname:', pathname);
 
   // Handle /en redirect to / (301 permanent redirect)
   if (pathname.startsWith('/en')) {

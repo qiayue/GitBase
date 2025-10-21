@@ -33,7 +33,8 @@
     "date": "2025-06-29T04:30:40.951Z",
     "lastModified": "2025-06-29T04:30:41Z",
     "path": "data/md/hello.md",
-    "deleted": false
+    "deleted": true,
+    "deletedAt": "2025-10-21T15:54:52.076Z"
   },
   {
     "title": "Contributing to GitBase",

@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function ArticleEditor() {
-  const [article, setArticle] = useState({ title: '', description: '', content: '', path: '' });
+  const [article, setArticle] = useState({ title: '', description: '', content: '', path: '', category: '' });
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const searchParams = useSearchParams();
@@ -20,6 +21,12 @@ export default function ArticleEditor() {
       setError('No article path provided');
       setIsLoading(false);
     }
+
+    // Fetch categories
+    fetch('/api/categories?type=article')
+      .then(res => res.json())
+      .then(data => setCategories(data))
+      .catch(err => console.error('Error fetching categories:', err));
   }, [path]);
 
   const fetchArticle = async (articlePath) => {
@@ -79,6 +86,20 @@ export default function ArticleEditor() {
         onChange={handleInputChange}
         placeholder="Article Description"
       />
+      <div>
+        <label className="block text-sm font-medium mb-2">Category (Optional)</label>
+        <select
+          name="category"
+          value={article.category || ''}
+          onChange={handleInputChange}
+          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">No Category</option>
+          {categories.map(cat => (
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          ))}
+        </select>
+      </div>
       <Textarea
         name="content"
         value={article.content}

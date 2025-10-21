@@ -1,0 +1,66 @@
+{
+  "navigation": {
+    "home": "ホーム",
+    "posts": "記事",
+    "resources": "リソース",
+    "admin": "管理",
+    "login": "ログイン",
+    "logout": "ログアウト"
+  },
+  "home": {
+    "title": "GitBase",
+    "subtitle": "データベース不要のオープンソース動的ウェブサイト CMS",
+    "description": "GitBase は Next.js、Tailwind CSS、Shadcn/UI で構築された動的なデータベースフリーのウェブサイトで、GitHub API を活用したシームレスなコンテンツ管理システムを提供します。",
+    "moreArticles": "もっと見る",
+    "moreResources": "もっと見る"
+  },
+  "articles": {
+    "title": "記事",
+    "noCategory": "カテゴリーなし"
+  },
+  "resources": {
+    "title": "リソース",
+    "noCategory": "カテゴリーなし"
+  },
+  "admin": {
+    "dashboard": "管理ダッシュボード",
+    "manageArticles": "記事管理",
+    "resourceManagement": "リソース管理",
+    "name": "名前",
+    "description": "説明",
+    "url": "URL",
+    "category": "カテゴリー",
+    "actions": "アクション",
+    "edit": "編集",
+    "save": "保存",
+    "addNew": "新規追加",
+    "createArticle": "新規記事作成",
+    "editArticle": "記事編集",
+    "articleTitle": "記事タイトル",
+    "articleDescription": "記事の説明",
+    "articleSlug": "記事スラッグ",
+    "articleContent": "記事内容（Markdown）",
+    "categoryOptional": "カテゴリー（任意）",
+    "creating": "作成中...",
+    "create": "記事作成",
+    "loading": "読み込み中...",
+    "savingArticle": "保存中..."
+  },
+  "login": {
+    "title": "管理者ログイン",
+    "username": "ユーザー名",
+    "password": "パスワード",
+    "enterUsername": "ユーザー名を入力",
+    "enterPassword": "パスワードを入力",
+    "signIn": "ログイン",
+    "signingIn": "ログイン中..."
+  },
+  "language": {
+    "select": "言語を選択",
+    "suggestion": {
+      "message": "ブラウザの言語は{language}です。この言語をサポートしています。",
+      "switch": "{language}に切り替える",
+      "dismiss": "{currentLanguage}のまま続ける"
+    }
+  }
+}

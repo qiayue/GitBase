@@ -15,6 +15,8 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const sync = searchParams.get('sync');
   const path = searchParams.get('path');
+  const category = searchParams.get('category');
+  const includeDeleted = searchParams.get('includeDeleted') === 'true';
 
   try {
     if (path) {
@@ -49,7 +51,17 @@ export async function GET(request) {
     });
 
     const content = Buffer.from(data.content, 'base64').toString('utf8');
-    const articles = JSON.parse(content);
+    let articles = JSON.parse(content);
+
+    // Filter out deleted articles unless explicitly requested
+    if (!includeDeleted) {
+      articles = articles.filter(article => !article.deleted);
+    }
+
+    // Filter by category if specified
+    if (category) {
+      articles = articles.filter(article => article.category === category);
+    }
 
     return NextResponse.json(articles);
   } catch (error) {
@@ -59,6 +71,12 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  // Double-check authentication (belt and suspenders approach)
+  const { verifyRequestAuth } = await import('@/lib/auth');
+  if (!verifyRequestAuth(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { article } = await request.json();
 
   try {
@@ -110,6 +128,7 @@ async function syncArticles() {
         title: frontMatter.title,
         description: frontMatter.description,
         date: frontMatter.date,
+        category: frontMatter.category || null,
         lastModified: lastModified,
         path: file.path,
       };
@@ -137,6 +156,137 @@ async function syncArticles() {
   }
 }
 
+// Soft delete (mark as deleted)
+export async function DELETE(request) {
+  const { verifyRequestAuth } = await import('@/lib/auth');
+  if (!verifyRequestAuth(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const path = searchParams.get('path');
+
+  if (!path) {
+    return NextResponse.json({ error: 'Path is required' }, { status: 400 });
+  }
+
+  try {
+    // Get current articles.json
+    const { data: currentFile } = await octokit.repos.getContent({
+      owner,
+      repo,
+      path: articlesJsonPath,
+    });
+
+    const content = Buffer.from(currentFile.content, 'base64').toString('utf8');
+    let articles = JSON.parse(content);
+
+    // Find and mark article as deleted
+    articles = articles.map(article =>
+      article.path === path
+        ? { ...article, deleted: true, deletedAt: new Date().toISOString() }
+        : article
+    );
+
+    // Update articles.json
+    await octokit.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path: articlesJsonPath,
+      message: `Soft delete article: ${path}`,
+      content: Buffer.from(JSON.stringify(articles, null, 2)).toString('base64'),
+      sha: currentFile.sha,
+    });
+
+    return NextResponse.json({ message: 'Article moved to trash' });
+  } catch (error) {
+    console.error('Error deleting article:', error);
+    return NextResponse.json({ error: 'Failed to delete article' }, { status: 500 });
+  }
+}
+
+// Restore or permanently delete
+export async function PATCH(request) {
+  const { verifyRequestAuth } = await import('@/lib/auth');
+  if (!verifyRequestAuth(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { path, action } = await request.json();
+
+  if (!path || !action) {
+    return NextResponse.json({ error: 'Path and action are required' }, { status: 400 });
+  }
+
+  try {
+    // Get current articles.json
+    const { data: currentFile } = await octokit.repos.getContent({
+      owner,
+      repo,
+      path: articlesJsonPath,
+    });
+
+    const content = Buffer.from(currentFile.content, 'base64').toString('utf8');
+    let articles = JSON.parse(content);
+
+    if (action === 'restore') {
+      // Restore article
+      articles = articles.map(article =>
+        article.path === path
+          ? { ...article, deleted: false, deletedAt: undefined }
+          : article
+      );
+
+      await octokit.repos.createOrUpdateFileContents({
+        owner,
+        repo,
+        path: articlesJsonPath,
+        message: `Restore article: ${path}`,
+        content: Buffer.from(JSON.stringify(articles, null, 2)).toString('base64'),
+        sha: currentFile.sha,
+      });
+
+      return NextResponse.json({ message: 'Article restored' });
+
+    } else if (action === 'permanentDelete') {
+      // Permanently delete: remove from articles.json and delete MD file
+      articles = articles.filter(article => article.path !== path);
+
+      // Delete MD file
+      const { data: mdFile } = await octokit.repos.getContent({
+        owner,
+        repo,
+        path: path,
+      });
+
+      await octokit.repos.deleteFile({
+        owner,
+        repo,
+        path: path,
+        message: `Permanently delete article: ${path}`,
+        sha: mdFile.sha,
+      });
+
+      // Update articles.json
+      await octokit.repos.createOrUpdateFileContents({
+        owner,
+        repo,
+        path: articlesJsonPath,
+        message: `Remove article from index: ${path}`,
+        content: Buffer.from(JSON.stringify(articles, null, 2)).toString('base64'),
+        sha: currentFile.sha,
+      });
+
+      return NextResponse.json({ message: 'Article permanently deleted' });
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  } catch (error) {
+    console.error('Error in PATCH:', error);
+    return NextResponse.json({ error: 'Operation failed' }, { status: 500 });
+  }
+}
+
 async function updateMdFile(article) {
   try {
     const { data: currentFile } = await octokit.repos.getContent({
@@ -152,6 +302,7 @@ async function updateMdFile(article) {
       ...frontMatter,
       title: article.title,
       description: article.description,
+      category: article.category !== undefined ? article.category : frontMatter.category,
       lastModified: new Date().toISOString(),
     };
 

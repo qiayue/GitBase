@@ -1,0 +1,66 @@
+{
+  "navigation": {
+    "home": "Home",
+    "posts": "Articles",
+    "resources": "Resources",
+    "admin": "Admin",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "home": {
+    "title": "GitBase",
+    "subtitle": "Open Source Dynamic Website CMS Without Database",
+    "description": "GitBase is a dynamic, database-free website built with Next.js, Tailwind CSS, and Shadcn/UI, featuring a content management system powered by the GitHub API for seamless updates and administration.",
+    "moreArticles": "More articles",
+    "moreResources": "More resources"
+  },
+  "articles": {
+    "title": "Articles",
+    "noCategory": "No Category"
+  },
+  "resources": {
+    "title": "Resources",
+    "noCategory": "No Category"
+  },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "manageArticles": "Manage Articles",
+    "resourceManagement": "Resource Management",
+    "name": "Name",
+    "description": "Description",
+    "url": "URL",
+    "category": "Category",
+    "actions": "Actions",
+    "edit": "Edit",
+    "save": "Save",
+    "addNew": "Add New",
+    "createArticle": "Create New Article",
+    "editArticle": "Edit Article",
+    "articleTitle": "Article Title",
+    "articleDescription": "Article Description",
+    "articleSlug": "Article Slug",
+    "articleContent": "Article Content (Markdown)",
+    "categoryOptional": "Category (Optional)",
+    "creating": "Creating...",
+    "create": "Create Article",
+    "loading": "Loading...",
+    "savingArticle": "Saving..."
+  },
+  "login": {
+    "title": "Admin Login",
+    "username": "Username",
+    "password": "Password",
+    "enterUsername": "Enter username",
+    "enterPassword": "Enter password",
+    "signIn": "Sign In",
+    "signingIn": "Signing In..."
+  },
+  "language": {
+    "select": "Select Language",
+    "suggestion": {
+      "message": "Your browser language is {language}. We support this language.",
+      "switch": "Switch to {language}",
+      "dismiss": "Continue in {currentLanguage}"
+    }
+  }
+}

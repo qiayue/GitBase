@@ -1,42 +1,33 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Trash2 } from 'lucide-react';
 
 export default function AdminPage() {
   const [resources, setResources] = useState([]);
-  const [newResource, setNewResource] = useState({ name: '', description: '', url: '' });
+  const [categories, setCategories] = useState([]);
+  const [newResource, setNewResource] = useState({ name: '', description: '', url: '', category: '' });
   const [editingIndex, setEditingIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const router = useRouter();
 
-  const checkAuth = useCallback(async () => {
+  const fetchCategories = useCallback(async () => {
     try {
-      const response = await fetch('/api/check-auth');
-      const data = await response.json();
-      if (!data.isLoggedIn) {
-        router.push('/login');
-      } else {
-        setIsLoading(false);
+      const response = await fetch('/api/categories?type=resource');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
       }
     } catch (error) {
-      console.error('Error checking auth:', error);
-      setError('Failed to authenticate. Please try again.');
-      setIsLoading(false);
+      console.error('Error fetching categories:', error);
     }
-  }, [router]);
+  }, []);
 
-  useEffect(() => {
-    checkAuth();
-    fetchResources();
-  }, [checkAuth]);
-
-  const fetchResources = async () => {
+  const fetchResources = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -52,7 +43,12 @@ export default function AdminPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchResources();
+    fetchCategories();
+  }, [fetchResources, fetchCategories]);
 
   const handleInputChange = (e, index = null) => {
     const { name, value } = e.target;
@@ -73,7 +69,7 @@ export default function AdminPage() {
     let updatedResources = [...resources];
     if (index === -1) {
       updatedResources.push(newResource);
-      setNewResource({ name: '', description: '', url: '' });
+      setNewResource({ name: '', description: '', url: '', category: '' });
     }
     try {
       const response = await fetch('/api/resources', {
@@ -92,6 +88,28 @@ export default function AdminPage() {
     }
   };
 
+  const handleDelete = useCallback(async (index) => {
+    if (!confirm('确定要将此资源移至垃圾箱吗？')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/resources?index=${index}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete resource');
+      }
+
+      await fetchResources();
+      alert('资源已移至垃圾箱');
+    } catch (error) {
+      console.error('Error deleting resource:', error);
+      alert('删除失败');
+    }
+  }, [fetchResources]);
+
   if (isLoading) {
     return <div className="container mx-auto p-4">Loading...</div>;
   }
@@ -103,9 +121,18 @@ export default function AdminPage() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
-      <div className="mb-4">
+      <div className="mb-4 flex gap-2">
         <Link href="/admin/articles">
           <Button>Manage Articles</Button>
+        </Link>
+        <Link href="/admin/trash">
+          <Button variant="outline">
+            <Trash2 className="h-4 w-4 mr-2" />
+            垃圾箱
+          </Button>
+        </Link>
+        <Link href="/admin/ai-dev">
+          <Button variant="outline">AI 功能开发中心</Button>
         </Link>
       </div>
       <h2 className="text-xl font-bold mb-4">Resource Management</h2>
@@ -115,6 +142,7 @@ export default function AdminPage() {
             <TableHead>Name</TableHead>
             <TableHead>Description</TableHead>
             <TableHead>URL</TableHead>
+            <TableHead>Category</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -144,10 +172,36 @@ export default function AdminPage() {
               </TableCell>
               <TableCell>
                 {editingIndex === index ? (
-                  <Button onClick={() => handleSave(index)}>Save</Button>
+                  <select
+                    name="category"
+                    value={resource.category || ''}
+                    onChange={(e) => handleInputChange(e, index)}
+                    className="w-full border rounded px-2 py-1"
+                  >
+                    <option value="">No Category</option>
+                    {categories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
                 ) : (
-                  <Button onClick={() => handleEdit(index)}>Edit</Button>
+                  categories.find(c => c.id === resource.category)?.name || '-'
                 )}
+              </TableCell>
+              <TableCell>
+                <div className="flex gap-2">
+                  {editingIndex === index ? (
+                    <Button onClick={() => handleSave(index)}>Save</Button>
+                  ) : (
+                    <Button onClick={() => handleEdit(index)}>Edit</Button>
+                  )}
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -160,6 +214,19 @@ export default function AdminPage() {
             </TableCell>
             <TableCell>
               <Input name="url" value={newResource.url} onChange={handleInputChange} placeholder="New resource URL" />
+            </TableCell>
+            <TableCell>
+              <select
+                name="category"
+                value={newResource.category}
+                onChange={handleInputChange}
+                className="w-full border rounded px-2 py-1"
+              >
+                <option value="">No Category</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
             </TableCell>
             <TableCell>
               <Button onClick={() => handleSave(-1)}>Add New</Button>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,10 +8,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert } from "@/components/ui/alert";
 
 export default function CreateArticlePage() {
-  const [article, setArticle] = useState({ title: '', description: '', content: '', slug: '' });
+  const [article, setArticle] = useState({ title: '', description: '', content: '', slug: '', category: '' });
+  const [categories, setCategories] = useState([]);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Fetch article categories
+    fetch('/api/categories?type=article')
+      .then(res => res.json())
+      .then(data => setCategories(data))
+      .catch(err => console.error('Error fetching categories:', err));
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -19,7 +28,7 @@ export default function CreateArticlePage() {
   };
 
   const handleSave = async () => {
-    setIsLoading(true);
+    setIsSaving(true);
     setError(null);
 
     try {
@@ -39,7 +48,7 @@ export default function CreateArticlePage() {
       console.error('Error creating article:', error);
       setError(error.message);
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -66,6 +75,20 @@ export default function CreateArticlePage() {
           onChange={handleInputChange}
           placeholder="Article Slug (e.g., my-new-article)"
         />
+        <div>
+          <label className="block text-sm font-medium mb-2">Category (Optional)</label>
+          <select
+            name="category"
+            value={article.category}
+            onChange={handleInputChange}
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">No Category</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+        </div>
         <Textarea
           name="content"
           value={article.content}
@@ -73,8 +96,8 @@ export default function CreateArticlePage() {
           placeholder="Article Content (Markdown)"
           rows={20}
         />
-        <Button onClick={handleSave} disabled={isLoading}>
-          {isLoading ? 'Creating...' : 'Create Article'}
+        <Button onClick={handleSave} disabled={isSaving}>
+          {isSaving ? 'Creating...' : 'Create Article'}
         </Button>
       </div>
     </div>

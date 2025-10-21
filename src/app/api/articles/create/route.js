@@ -12,7 +12,13 @@ const articlesJsonPath = 'data/json/articles.json';
 const mdFolderPath = 'data/md';
 
 export async function POST(request) {
-  const { title, description, content, slug } = await request.json();
+  // Double-check authentication (belt and suspenders approach)
+  const { verifyRequestAuth } = await import('@/lib/auth');
+  if (!verifyRequestAuth(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { title, description, content, slug, category } = await request.json();
 
   // Validate slug
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
@@ -37,11 +43,18 @@ export async function POST(request) {
     }
 
     // Create new file
-    const fileContent = matter.stringify(content, {
+    const frontMatterData = {
       title,
       description,
       date: new Date().toISOString(),
-    });
+    };
+
+    // Add category if provided
+    if (category) {
+      frontMatterData.category = category;
+    }
+
+    const fileContent = matter.stringify(content, frontMatterData);
 
     await octokit.repos.createOrUpdateFileContents({
       owner,
@@ -97,6 +110,7 @@ async function syncArticles() {
         title: frontMatter.title,
         description: frontMatter.description,
         date: frontMatter.date,
+        category: frontMatter.category || null,
         lastModified: lastModified,
         path: file.path,
       };

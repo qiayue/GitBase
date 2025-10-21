@@ -1,17 +1,29 @@
-// pages/index.js
+// Multi-language home page
 import fs from 'fs'
 import path from 'path'
 import { getSortedPostsData } from '@/lib/posts'
 import ResourceList from '@/components/ResourceList'
 import ArticleList from '@/components/ArticleList'
 import { Metadata } from 'next'
+import { i18n, type Locale } from '@/lib/i18n-config'
+import { getDictionary } from '@/lib/get-dictionary'
 
-export const metadata: Metadata = {
-  title: 'GitBase - Open Source Dynamic Website CMS Without Database',
-  description: 'A Next.js site with Tailwind & Shadcn/UI, using GitHub API for content management. No database needed for dynamic updates.',
+export async function generateStaticParams() {
+  return i18n.locales.map((locale) => ({ lang: locale }))
 }
 
-export default function Home() {
+export async function generateMetadata({ params }: { params: { lang: Locale } }): Promise<Metadata> {
+  const dict = await getDictionary(params.lang)
+
+  return {
+    title: dict.home.title + ' - ' + dict.home.subtitle,
+    description: dict.home.description,
+  }
+}
+
+export default async function Home({ params }: { params: { lang: Locale } }) {
+  const dict = await getDictionary(params.lang)
+
   const resourcesPath = path.join(process.cwd(), 'data', 'json', 'resources.json')
   const allResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'))
   // Filter out deleted resources
@@ -22,11 +34,13 @@ export default function Home() {
     <div className="container mx-auto py-12 space-y-16">
       <section className="text-center space-y-4">
         <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
-          GitBase
+          {dict.home.title}
         </h1>
-        <h2 className="text-2xl tracking-tighter sm:text-3xl md:text-3xl lg:text-3xl">Open Source Dynamic Website CMS Without Database</h2>
+        <h2 className="text-2xl tracking-tighter sm:text-3xl md:text-3xl lg:text-3xl">
+          {dict.home.subtitle}
+        </h2>
         <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
-          GitBase is a dynamic, database-free website built with Next.js, Tailwind CSS, and Shadcn/UI, featuring a content management system powered by the GitHub API for seamless updates and administration.
+          {dict.home.description}
         </p>
       </section>
 

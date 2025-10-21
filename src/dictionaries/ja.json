@@ -56,6 +56,11 @@
     "signingIn": "ログイン中..."
   },
   "language": {
-    "select": "言語を選択"
+    "select": "言語を選択",
+    "suggestion": {
+      "message": "ブラウザの言語は{language}です。この言語をサポートしています。",
+      "switch": "{language}に切り替える",
+      "dismiss": "{currentLanguage}のまま続ける"
+    }
   }
 }

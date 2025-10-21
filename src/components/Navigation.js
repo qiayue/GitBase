@@ -7,6 +7,7 @@ import { Github } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import LanguageSuggestion from '@/components/LanguageSuggestion'
 import { i18n, getLocaleFromPath } from '@/lib/i18n-config'
 
 const navItems = [
@@ -66,8 +67,10 @@ export function Navigation() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background">
-      <div className="container flex h-16 items-center justify-between">
+    <>
+      <LanguageSuggestion currentLocale={currentLocale} currentPath={pathname} />
+      <header className="sticky top-0 z-40 w-full border-b bg-background">
+        <div className="container flex h-16 items-center justify-between">
         <div className="flex gap-6 md:gap-10">
           <Link href={getLocalizedPath('/')} className="flex items-center space-x-2">
             <span className="inline-block font-bold">GitBase</span>
@@ -118,5 +121,6 @@ export function Navigation() {
         </div>
       </div>
     </header>
+    </>
   )
 }

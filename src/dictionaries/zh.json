@@ -56,6 +56,11 @@
     "signingIn": "登录中..."
   },
   "language": {
-    "select": "选择语言"
+    "select": "选择语言",
+    "suggestion": {
+      "message": "您的浏览器语言是{language}，我们网站支持此语言。",
+      "switch": "切换到{language}",
+      "dismiss": "继续使用{currentLanguage}"
+    }
   }
 }

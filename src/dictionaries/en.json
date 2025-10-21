@@ -56,6 +56,11 @@
     "signingIn": "Signing In..."
   },
   "language": {
-    "select": "Select Language"
+    "select": "Select Language",
+    "suggestion": {
+      "message": "Your browser language is {language}. We support this language.",
+      "switch": "Switch to {language}",
+      "dismiss": "Continue in {currentLanguage}"
+    }
   }
 }

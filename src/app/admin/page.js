@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Trash2 } from 'lucide-react';
 
 export default function AdminPage() {
   const [resources, setResources] = useState([]);
@@ -106,6 +107,28 @@ export default function AdminPage() {
     }
   };
 
+  const handleDelete = useCallback(async (index) => {
+    if (!confirm('确定要将此资源移至垃圾箱吗？')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/resources?index=${index}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete resource');
+      }
+
+      await fetchResources();
+      alert('资源已移至垃圾箱');
+    } catch (error) {
+      console.error('Error deleting resource:', error);
+      alert('删除失败');
+    }
+  }, [fetchResources]);
+
   if (isLoading) {
     return <div className="container mx-auto p-4">Loading...</div>;
   }
@@ -120,6 +143,12 @@ export default function AdminPage() {
       <div className="mb-4 flex gap-2">
         <Link href="/admin/articles">
           <Button>Manage Articles</Button>
+        </Link>
+        <Link href="/admin/trash">
+          <Button variant="outline">
+            <Trash2 className="h-4 w-4 mr-2" />
+            垃圾箱
+          </Button>
         </Link>
         <Link href="/admin/ai-dev">
           <Button variant="outline">AI 功能开发中心</Button>
@@ -178,11 +207,20 @@ export default function AdminPage() {
                 )}
               </TableCell>
               <TableCell>
-                {editingIndex === index ? (
-                  <Button onClick={() => handleSave(index)}>Save</Button>
-                ) : (
-                  <Button onClick={() => handleEdit(index)}>Edit</Button>
-                )}
+                <div className="flex gap-2">
+                  {editingIndex === index ? (
+                    <Button onClick={() => handleSave(index)}>Save</Button>
+                  ) : (
+                    <Button onClick={() => handleEdit(index)}>Edit</Button>
+                  )}
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

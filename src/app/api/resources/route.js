@@ -36,6 +36,7 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const source = searchParams.get('source');
   const category = searchParams.get('category');
+  const includeDeleted = searchParams.get('includeDeleted') === 'true';
 
   try {
     let resources;
@@ -45,6 +46,11 @@ export async function GET(req) {
     } else {
       // Default to local file for homepage
       resources = getLocalResources();
+    }
+
+    // Filter out deleted resources unless explicitly requested
+    if (!includeDeleted) {
+      resources = resources.filter(resource => !resource.deleted);
     }
 
     // Filter by category if specified
@@ -90,5 +96,128 @@ export async function POST(req) {
   } catch (error) {
     console.error('Error updating resources:', error);
     return NextResponse.json({ error: 'Failed to update resources' }, { status: 500 });
+  }
+}
+
+// Soft delete (mark as deleted)
+export async function DELETE(req) {
+  const { verifyRequestAuth } = await import('@/lib/auth');
+  if (!verifyRequestAuth(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const index = searchParams.get('index');
+
+  if (index === null) {
+    return NextResponse.json({ error: 'Index is required' }, { status: 400 });
+  }
+
+  try {
+    const { data: currentFile } = await octokit.repos.getContent({
+      owner,
+      repo,
+      path: githubPath,
+    });
+
+    const content = Buffer.from(currentFile.content, 'base64').toString('utf8');
+    let resources = JSON.parse(content);
+
+    // Mark resource as deleted
+    const resourceIndex = parseInt(index);
+    if (resourceIndex >= 0 && resourceIndex < resources.length) {
+      resources[resourceIndex] = {
+        ...resources[resourceIndex],
+        deleted: true,
+        deletedAt: new Date().toISOString()
+      };
+
+      await octokit.repos.createOrUpdateFileContents({
+        owner,
+        repo,
+        path: githubPath,
+        message: `Soft delete resource: ${resources[resourceIndex].name}`,
+        content: Buffer.from(JSON.stringify(resources, null, 2)).toString('base64'),
+        sha: currentFile.sha,
+      });
+
+      return NextResponse.json({ message: 'Resource moved to trash' });
+    }
+
+    return NextResponse.json({ error: 'Invalid index' }, { status: 400 });
+  } catch (error) {
+    console.error('Error deleting resource:', error);
+    return NextResponse.json({ error: 'Failed to delete resource' }, { status: 500 });
+  }
+}
+
+// Restore or permanently delete
+export async function PATCH(req) {
+  const { verifyRequestAuth } = await import('@/lib/auth');
+  if (!verifyRequestAuth(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { index, action } = await req.json();
+
+  if (index === null || !action) {
+    return NextResponse.json({ error: 'Index and action are required' }, { status: 400 });
+  }
+
+  try {
+    const { data: currentFile } = await octokit.repos.getContent({
+      owner,
+      repo,
+      path: githubPath,
+    });
+
+    const content = Buffer.from(currentFile.content, 'base64').toString('utf8');
+    let resources = JSON.parse(content);
+
+    const resourceIndex = parseInt(index);
+
+    if (action === 'restore') {
+      // Restore resource
+      if (resourceIndex >= 0 && resourceIndex < resources.length) {
+        resources[resourceIndex] = {
+          ...resources[resourceIndex],
+          deleted: false,
+          deletedAt: undefined
+        };
+
+        await octokit.repos.createOrUpdateFileContents({
+          owner,
+          repo,
+          path: githubPath,
+          message: `Restore resource: ${resources[resourceIndex].name}`,
+          content: Buffer.from(JSON.stringify(resources, null, 2)).toString('base64'),
+          sha: currentFile.sha,
+        });
+
+        return NextResponse.json({ message: 'Resource restored' });
+      }
+    } else if (action === 'permanentDelete') {
+      // Permanently delete: remove from array
+      if (resourceIndex >= 0 && resourceIndex < resources.length) {
+        const deletedResource = resources[resourceIndex];
+        resources.splice(resourceIndex, 1);
+
+        await octokit.repos.createOrUpdateFileContents({
+          owner,
+          repo,
+          path: githubPath,
+          message: `Permanently delete resource: ${deletedResource.name}`,
+          content: Buffer.from(JSON.stringify(resources, null, 2)).toString('base64'),
+          sha: currentFile.sha,
+        });
+
+        return NextResponse.json({ message: 'Resource permanently deleted' });
+      }
+    }
+
+    return NextResponse.json({ error: 'Invalid action or index' }, { status: 400 });
+  } catch (error) {
+    console.error('Error in PATCH:', error);
+    return NextResponse.json({ error: 'Operation failed' }, { status: 500 });
   }
 }
